@@ -3,8 +3,12 @@ from flask_caching import Cache
 import uuid
 import random
 import collections
+from flask_cors import CORS # CORS対策
+
+# CORS対策 pip install flask-cors
 
 app = Flask(__name__)
+CORS(app) #CORS対策
 
 # Cacheインスタンスの作成
 cache = Cache(app, config={
