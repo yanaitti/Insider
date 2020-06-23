@@ -1,4 +1,4 @@
-from flask import Flask, Response, render_template
+from flask import Flask, Response, render_template, url_for
 from flask_caching import Cache
 import uuid
 import random
@@ -9,6 +9,33 @@ import copy
 
 app = Flask(__name__)
 
+@app.context_processor
+def override_url_for():
+    return dict(url_for=dated_url_for)
+
+
+def dated_url_for(endpoint, **values):
+    if endpoint == 'static':
+        filename = values.get('filename', None)
+        if filename:
+            file_path = os.path.join(app.root_path,
+                                     endpoint, filename)
+            values['q'] = int(os.stat(file_path).st_mtime)
+    return url_for(endpoint, **values)
+
+
+@app.after_request
+def add_header(r):
+    """
+    Add headers to both force latest IE rendering engine or Chrome Frame,
+    and also to cache the rendered page for 10 minutes.
+    """
+    r.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    r.headers["Pragma"] = "no-cache"
+    r.headers["Expires"] = "0"
+    r.headers['Cache-Control'] = 'public, max-age=0'
+    return r
+
 # Cacheインスタンスの作成
 cache = Cache(app, config={
     'CACHE_TYPE': 'redis',
@@ -17,7 +44,173 @@ cache = Cache(app, config={
 })
 
 
-answers = ['アパート', '宇宙人', 'チャーハン', 'フィリピン']
+answers = [
+    'アパート',
+    '宇宙人',
+    'チャーハン',
+    'フィリピン',
+    'Tシャツ',
+    'あいさつ',
+    'おままごと',
+    'おむつ',
+    'かさ',
+    'くつ',
+    'くつした',
+    'しょうゆ',
+    'せっけん',
+    'そら豆',
+    'つえ',
+    'つり橋',
+    'はしご',
+    'まばたき',
+    'らせん階段',
+    'アナウンサー',
+    'インターネット',
+    'エスカレーター',
+    'エベレスト',
+    'エレベーター',
+    'オリンピック',
+    'カジノ',
+    'ガラパゴス諸島',
+    'ガードレール',
+    'コショウ',
+    'コマーシャル',
+    'コーヒー',
+    'サイコロ',
+    'サングラフ',
+    'サンタクロース',
+    'スキップ',
+    'ストロー',
+    'スポンジ',
+    'スリップ',
+    'タイムマシン',
+    'タオル',
+    'タクシー',
+    'タトゥー',
+    'チェス',
+    'チョコレート',
+    'テニスコート',
+    'トイレ',
+    'トウガラシ',
+    'トウモロコシ',
+    'トライアスロン',
+    'トランプ',
+    'トランポリン',
+    'トンネル',
+    'ドライヤー',
+    'ニュージーランド',
+    'ニュース',
+    'ハワイ',
+    'バジル',
+    'バンジージャンプ',
+    'パズル',
+    'パラシュート',
+    'パンツ',
+    'ビール',
+    'ピーナッツ',
+    'フラフープ',
+    'ヘリコプター',
+    'ベビーカー',
+    'ベランダ',
+    'ボードゲーム',
+    'ポップコーン',
+    'マグカップ',
+    'マラソン',
+    'マンガ',
+    'マンモス',
+    'ミイラ',
+    'ムー大陸',
+    'メガネ',
+    'メリーゴーランド',
+    'ヨット',
+    'ラジオ',
+    'リップクリーム',
+    'ロボット',
+    'ワイン',
+    'ワールドカップ',
+    '一輪車',
+    '丸太',
+    '乾電池',
+    '人魚',
+    '休日',
+    '会議',
+    '住宅地',
+    '信号機',
+    '催眠術',
+    '化石',
+    '南国',
+    '原始人',
+    '台所',
+    '図鑑',
+    '国境',
+    '地下室',
+    '地球温暖化',
+    '塩',
+    '壁',
+    '天井',
+    '天気予報',
+    '太陽電池',
+    '女優',
+    '妊婦',
+    '妖精',
+    '子守歌',
+    '宇宙人',
+    '実験',
+    '寝室',
+    '小説',
+    '小麦',
+    '屋上',
+    '屋根',
+    '帽子',
+    '床',
+    '庭',
+    '恐竜',
+    '悪魔',
+    '手帳',
+    '教科書',
+    '散歩',
+    '文化',
+    '文明',
+    '方眼紙',
+    '暖炉',
+    '望遠鏡',
+    '柱',
+    '横断歩道',
+    '歩道',
+    '歯ブラシ',
+    '歴史',
+    '気球',
+    '水泳',
+    '洗剤',
+    '洗濯機',
+    '潜水艦',
+    '火力発電所',
+    '牛乳',
+    '畑',
+    '真珠',
+    '砂糖',
+    '研究',
+    '米',
+    '紙コップ',
+    '芸人',
+    '落ち葉',
+    '蒸気機関',
+    '虫めがね',
+    '試験管',
+    '赤ちゃん',
+    '辞書',
+    '透明人間',
+    '運動会',
+    '金メダル',
+    '雑誌',
+    '雪男',
+    '風呂',
+    '風車',
+    '飛行船',
+    '食卓',
+    '駐車場',
+    '魔女'
+]
 
 
 @app.route('/')
