@@ -6,10 +6,20 @@ $(function() {
   var cId = '';
   $('#entry').show();
 
+  $('#clickCopy').click(function(){
+    var text = $('#uriWgId').val();
+    var clipboard = $('<textarea></textarea>');
+    clipboard.text(text);
+    $('body').append(clipboard);
+    clipboard.select();
+    document.execCommand('copy');
+    clipboard.remove();
+  });
+
   // Create Game
   $('#createGame').click(function() {
     $('#message').empty();
-    $.ajax('create' + '/' + $('#cName_inp').val(),
+    $.ajax('/create' + '/' + $('#cName_inp').val(),
       {
         type: 'get',
       }
@@ -19,6 +29,7 @@ $(function() {
       $('#cId').text(data);
       $('#cName').text($('#cName_inp').val());
       $('#gStatus').text('waiting');
+      $('#uriWgId').val(location.href + data + '/join');
       gId = data;
       cId = data;
       $('#sec1').show();
@@ -32,7 +43,7 @@ $(function() {
   // Join Game
   $('#joinGame').click(function() {
     $('#message').empty();
-    $.ajax($('#gId_inp').val() + '/join/' + $('#cName_inp').val(),
+    $.ajax('/' + $('#gId_inp').val() + '/join/' + $('#cName_inp').val(),
       {
         type: 'get',
       }
@@ -54,7 +65,7 @@ $(function() {
   // Start Game
   $('#startGame').click(function() {
     $('#message').empty();
-    $.getJSON(gId + '/start',
+    $.getJSON('/' + gId + '/start',
       {
         type: 'get',
       }
@@ -71,7 +82,7 @@ $(function() {
   $('#vote').click(function() {
     $('#message').empty();
     // put your card
-    $.ajax(gId + '/vote/' + $('[name="votelists"] option:selected').val(),
+    $.ajax('/' + gId + '/vote/' + $('[name="votelists"] option:selected').val(),
       {
         type: 'get',
       }
@@ -104,7 +115,7 @@ var status_check = function(gId, cId){
   setTimeout(function(){
     $('#message').empty();
     // all status
-    $.getJSON(gId + '/status',
+    $.getJSON('/' + gId + '/status',
       {
         type: 'get',
       }
